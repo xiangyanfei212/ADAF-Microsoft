@@ -25,7 +25,7 @@ stats_file='/wxforecasting3/users/v-yanfei/samples_v12_hour_0_6_12_18/lead_1/sta
 ### Data Summary:
 
 | **Dataset**                  | **Source**                  | **Time Window** | **Variables/Bands**     | **Pre-proceess** | **Example** | 
-| ---------------------------- | --------------------------- | --------------- | ----------------------- | ------------------- |
+| ---------------------------- | --------------------------- | --------------- | ----------------------- | ------------------- |  ------------------- |
 | Surface weather observations | WeatherReal-Synoptic (2024) | 3 hours         | Q, T2M, U10, V10        |          |           |
 | Satellite imagery            | GOES-16                     | 3 hours         | 0.64, 3.9, 7.3, 11.2 μm |          |           |
 | HRRR forecast                | HRRR                        | N/A             | Q, T2M, U10, V10        |          |           |
