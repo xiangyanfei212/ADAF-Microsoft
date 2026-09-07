@@ -72,6 +72,7 @@ def setup(params):
 
     files_paths = glob.glob(params.test_data_path + "/*.nc")
     files_paths.sort()
+    inference_times = [os.path.splitext(os.path.basename(f))[0] for f in files_paths]
 
     return files_paths, inference_times, model
 
@@ -129,9 +130,10 @@ def min_max_norm_ignore_extreme_fill_nan(data, vmin, vmax):
 
 def reverse_norm(params, data, variable_names):
 
-    stats_file = os.path.join(
-        params.data_path,
-        f"stats_{params.norm_type}.csv")
+    stats_file = params.stats_file
+    # stats_file = os.path.join(
+    #     params.data_path,
+    #     f"stats_{params.norm_type}.csv")
     stats = pd.read_csv(stats_file, index_col=0)
 
     # for vi, var in enumerate(params.field_tar_vars):
@@ -545,8 +547,9 @@ def read_sample_file_and_norm_input(
 ):
 
     # %% get statistic
-    stats_file = os.path.join(
-        params.data_path, f"stats.csv")
+    # stats_file = os.path.join(
+    #     params.data_path, f"stats.csv")
+    stats_file = params.stats_file
 
     stats = pd.read_csv(stats_file, index_col=0)
 
@@ -594,8 +597,8 @@ def read_sample_file_and_norm_input(
         :, :params.img_size_y, :params.img_size_x]
 
     # satellite
-    inp_sate = np.array [params.inp_satelite_vars].to_array())[
-        :, -params.obs_time_window:, :params.img_size_y, :params.img_size_x
+    inp_sate = np.array(ds[params.inp_satelite_vars].to_array())[
+        :, -params.obs_time_window:, : params.img_size_y, : params.img_size_x
     ]
 
     # Observation (normed)
@@ -668,23 +671,32 @@ def read_sample_file_and_norm_input(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", default=0, type=int)
-    parser.add_argument("--exp_dir", default="", type=str)
+    # parser.add_argument("--exp_dir", default="", type=str)
+    parser.add_argument("--output_dir", default="", type=str)
+    parser.add_argument("--config_path", default="", type=str)
+    parser.add_argument("--best_checkpoint_path", default="", type=str)
     parser.add_argument("--test_data_path", default="", type=str)
+    parser.add_argument("--stats_file", default="", type=str)
     parser.add_argument("--net_config", default="EncDec", type=str)
     parser.add_argument("--hold_out_obs_ratio", type=float, default=0.2)
-
+ 
     args = parser.parse_args()
 
-    config_path = os.path.join(args.exp_dir, "config.yaml")
-
-    params = YParams(config_path, args.net_config)
+    # config_path = os.path.join(args.exp_dir, "config.yaml")
+    params = YParams(args.config_path, args.net_config)
     params["resuming"] = False
     params["seed"] = args.seed
-    params["experiment_dir"] = args.exp_dir
+    params["experiment_dir"] = args.output_dir
     params["test_data_path"] = args.test_data_path
-    params["best_checkpoint_path"] = os.path.join(
-        params["experiment_dir"], "training_checkpoints", "best_ckpt.tar"
-    )
+    params['best_checkpoint_path'] = args.best_checkpoint_path # "./model_saved/best_ckpt.tar"
+    params['config_path'] = args.config_path # "./config/experiment.yaml"
+    params['stats_file'] = args.stats_file 
+    
+    # params["best_checkpoint_path"] = os.path.join(
+    #     params["experiment_dir"], 
+    #     "training_checkpoints", 
+    #     "best_ckpt.tar"
+    # )
 
     # set up logging
     log_to_file(
